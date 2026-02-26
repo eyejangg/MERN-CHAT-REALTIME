@@ -3,18 +3,16 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const { app, server } = require("./lib/socket"); // config import lib socket
 dotenv.config();
 
-
-
-const app = express();
 const PORT = process.env.PORT
 const BASE_URL = process.env.BASE_URL
 const MONGO_URI = process.env.MONGO_URI
 
 app.use(
     cors({
-        origin: [BASE_URL, "http://localhost:5173"],
+        origin: [BASE_URL],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
         credentials: true,
@@ -28,8 +26,8 @@ app.use(cookieParser());
 const userRouter = require("./routers/user.Route");
 app.use("/api/v1/user", userRouter);
 
-
-
+const messageRouter = require("./routers/message.router");
+app.use("/api/v1/message", messageRouter);
 
 
 app.get("/", (req, res) => {
@@ -51,7 +49,9 @@ if (!MONGO_URI) {
 }
 
 // Start server
-app.listen(PORT, () => {
+// app.listen
+// พอใช้ socket.io มาเปลี่ยนตรงนี้ด้วย เป็น server.listen
+server.listen(PORT, () => {
     console.log("Server is running on " + BASE_URL);
 });
 
