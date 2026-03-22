@@ -1,96 +1,90 @@
-# คู่มือการใช้งาน Backend API และรายละเอียดการแก้ไขระบบ (MERN Chat Backend)
-
-## สรุปรายการแก้ไขและการปรับปรุงระบบ (System Update Log)
-
-### 1. การแก้ไขปัญหาเรื่องการ Auth และ Middleware (`auth.middleware.js`)
-*   **โหลด Environment Variables**: เพิ่ม `require("dotenv").config()` เพื่อให้อ่านค่า `SECRET` ได้
-*   **ตั้งชื่อ Cookie ให้ตรงกัน**: แก้ไขให้ Login ส่ง Cookie ชื่อ `jwt` และ Middleware อ่านจาก `req.cookies.jwt`
-*   **แก้ ReferenceError**: ลบ Code ส่วนเกินที่ประกาศซ้ำซ้อน
-*   **เพิ่ม Logs**: ใส่ `console.error` เพื่อให้ Debug ง่ายขึ้น
-
-### 2. การแก้ปัญหา Server Configuration (`index.js`)
-*   **เพิ่มขนาด Request Body**: ปรับ `body-parser` เป็น **50mb** เพื่อรองรับการอัปโหลดรูปภาพ Base64
-*   **ย้ายลำดับ Middleware**: ย้าย `cookie-parser` ขึ้นก่อน Routes เพื่อให้อ่าน Cookie ได้
-
-### 3. ฟีเจอร์ Edit Profile (`controllers/user.Controller.js`)
-*   **Cloudinary Upload**: เพิ่ม Logic อัปโหลดรูปภาพก่อนบันทึกลง Database
-*   **แก้ไขตัวแปร Model**: เปลี่ยนจาก `User` เป็น `UserModel` ให้ถูกต้อง
-*   **ปรับปรุง Logic**: แยกเคสการอัปเดต (ชื่อ+รูป / รูปอย่างเดียว / ชื่ออย่างเดียว)
-*   **แก้ไข Syntax**: จัดรูปแบบ `try-catch` ให้ถูกต้อง
-
-### 5. การแก้ไขระบบ Real-time (Socket.io)
-*   **แก้ไขการพ่น Event**: ตรวจสอบการส่ง `newMessage` ผ่าน Socket ว่าส่งข้อมูล `newMessage` ไปให้ผู้รับ (Recipient) ได้ถูกต้อง
-*   **การเชื่อมต่อ**: ปรับปรุงให้ Server รันผ่าน `server.listen` แทน `app.listen` เพื่อให้ Socket.io ทำงานได้สมบูรณ์
+<div align="center">
+  <h1>🚀 MERN-CHAT-REALTIME (Backend API)</h1>
+  <p>Backend API สำหรับแอปพลิเคชันแชทแบบ Real-time สร้างด้วย Node.js, Express, MongoDB และ Socket.IO</p>
+</div>
 
 ---
 
-## 🚀 คู่มือการทดสอบ API ด้วย Postman
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-**Base URL**: `http://localhost:5000`
-
-### 1. สมัครสมาชิก (Register)
-*   **Method**: `POST`
-*   **URL**: `{{Base_URL}}/api/v1/user/register`
-*   **Body** (JSON):
-    ```json
-    {
-      "fullname": "Test User",
-      "email": "test@example.com",
-      "password": "password123"
-    }
-    ```
-*   **ผลลัพธ์**: ได้รับข้อความ "User registered successfully" และได้ Cookie `jwt` กลับมา
-
-### 2. เข้าสู่ระบบ (Login)
-*   **Method**: `POST`
-*   **URL**: `{{Base_URL}}/api/v1/user/login`
-*   **Body** (JSON):
-    ```json
-    {
-      "email": "test@example.com",
-      "password": "password123"
-    }
-    ```
-*   **ผลลัพธ์**:
-    *   ได้รับ User ID และ Token ใน Response Body
-    *   **สำคัญ**: Postman จะเก็บ Cookie ชื่อ `jwt` ไว้ให้อัตโนมัติ (ดูที่แท็บ Cookies)
-
-### 3. ตรวจสอบสถานะการล็อกอิน (Check Auth)
-*   **Method**: `GET`
-*   **URL**: `{{Base_URL}}/api/v1/user/check`
-*   **Auth**: ไม่ต้องตั้งค่าอะไรเพิ่ม (ใช้ Cookie ที่ได้จากการ Login)
-*   **ผลลัพธ์**: ควรได้รับข้อมูล JSON ของ User ปัจจุบัน (เช่น `_id`, `fullname`, `email`)
-
-### 4. อัปเดตโปรไฟล์ (Update Profile)
-*   **Method**: `PUT`
-*   **URL**: `{{Base_URL}}/api/v1/user/update-profile`
-*   **Body** (JSON):
-    ```json
-    {
-      "fullname": "New Name",
-      "profilePicture": "data:image/jpeg;base64,/9j/4AAQSkZJRg..." // ใส่ Base64 String ของรูปภาพ
-    }
-    ```
-    *   **Note**: คุณสามารถแปลงรูปเป็น Base64 ได้จากเว็บต่างๆ หรือใช้ Frontend ส่งมา
-*   **ผลลัพธ์**: ได้รับข้อมูล User ที่อัปเดตแล้ว และรูปภาพที่อัปโหลดขึ้น Cloudinary
-
-### 5. ออกจากระบบ (Logout)
-*   **Method**: `POST`
-*   **URL**: `{{Base_URL}}/api/v1/user/logout`
-*   **ผลลัพธ์**: Cookie `jwt` จะถูกลบออก (Postman Cookie จะหายไปหรือหมดอายุ)
+- **Node.js & Express.js**: สร้าง RESTful API และ Server
+- **MongoDB & Mongoose**: ฐานข้อมูล NoSQL และไลบรารีจัดการ Schema
+- **Socket.IO**: จัดการระบบแชทแบบ Real-time (WebSockets)
+- **JSON Web Token (JWT)**: ระบบยืนยันตัวตน (Authentication) อิงตาม HttpOnly Cookie เพื่อความปลอดภัยสูงสุด
+- **Bcrypt**: สำหรับสับ (Hash) รหัสผ่านก่อนเก็บลงฐานข้อมูล
+- **Cloudinary**: อัปโหลดและจัดการไฟล์รูปภาพ (โปรไฟล์, รูปที่ส่งในแชท)
 
 ---
 
-## ⚠️ ปัญหาที่พบบ่อย (Troubleshooting)
+## 🚀 การติดตั้งและเริ่มต้นใช้งาน (Installation & Setup)
 
-1.  **Unauthorized - No Token provided**:
-    *   แปลว่า Browser/Postman ไม่ได้ส่ง Cookie ไปให้ Server
-    *   **แก้วิธี**: ให้ลอง Login ใหม่ แล้วเช็คว่ามี Cookie ชื่อ `jwt` ถูกสร้างขึ้นหรือไม่
+1. **Clone โปรเจกต์**
+   ```bash
+   git clone https://github.com/eyejangg/MERN-CHAT-REALTIME.git
+   cd MERN-CHAT-REALTIME
+   ```
 
-2.  **PayloadTooLargeError**:
-    *   แปลว่ารูปภาพ Base64 ใหญ่เกินไป
-    *   **แก้วิธี**: Server ปรับให้รับได้ 50mb แล้ว ถ้ายังไม่ได้ ลองลดขนาดรูปก่อนส่ง
+2. **ติดตั้งไลบรารีทั้งหมด**
+   ```bash
+   npm install
+   ```
 
-3.  **User Not Found**:
-    *   แปลว่า ID ใน Token ไม่ตรงกับ ID ใน Database
-    *   **แก้วิธี**: ให้ Logout แล้ว Login ใหม่ เพื่อสร้าง Token ที่ถูกต้อง
+3. **ตั้งค่าตัวแปรระดับระบบ (Environment Variables)**
+   สร้างไฟล์ `.env` ไว้ที่ Root ของโปรเจกต์ และใส่ข้อมูลตามนี้:
+   ```env
+   PORT=5000
+   MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/mernchat
+   SECRET=your_super_secret_jwt_key
+   BASE_URL=http://localhost:5173
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   node_mode=development
+   ```
+
+4. **รันเซิร์ฟเวอร์**
+   ```bash
+   # สำหรับโหมด Development (มี Nodemon)
+   npm run dev
+   
+   # สำหรับรันปกติ
+   npm start
+   ```
+   *เซิร์ฟเวอร์จะรันที่ `http://localhost:5000`*
+
+---
+
+## 🧪 การทดสอบ API ด้วย Postman
+
+เนื่องจากระบบนี้ใช้ **HttpOnly Cookie** ในการเก็บ JWT Token แทนการส่งผ่าน Header `Authorization` การทดสอบด้วย Postman จำเป็นต้องทำตามขั้นตอนนี้:
+
+### ขั้นตอนตั้งค่า Postman ให้จำ Cookie
+1. เคลียร์เคลียร์ Cache หรือ Session เก่าทิ้ง
+2. ยิง API **Login** ก่อน (ระบบจะแนบ Cookie กลับมาที่เบราว์เซอร์/Postman โดยอัตโนมัติ)
+3. ยิง API เส้นอื่นๆ ที่มีการป้องกันด้วย (`protectedRoute`) ได้เลยทันที โดยตราบใดที่ Cookie ยังไม่หมดอายุ
+
+### 📌 เส้นทาง API ทั้งหมด (API Endpoints)
+
+#### 🧑‍💻 สมัครสมาชิกและเข้าสู่ระบบ (Auth: `/api/v1/user`)
+| Method | Endpoint | หน้าที่ | Body / Data |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/v1/user/register` | สมัครสมาชิกใหม่ | `{ fullname, email, password }` |
+| **POST** | `/api/v1/user/login` | เข้าสู่ระบบ | `{ email, password }` |
+| **POST** | `/api/v1/user/logout` | ออกจากระบบ (ล้าง Cookie) | *ไม่มี* |
+| **GET** | `/api/v1/user/check` | เช็คสถานะการล็อกอิน | *(เช็คจาก Cookie อัตโนมัติ)* |
+| **PUT** | `/api/v1/user/update-profile` | เปลี่ยนรูปโปรไฟล์ | `{ profilePicture: "base64..." }` |
+
+#### 💬 ระบบข้อความแชท (Message: `/api/v1/message`)
+| Method | Endpoint | หน้าที่ | Body / Data |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/v1/message/users` | ดึงรายชื่อผู้ใช้ที่สามารถแชทได้ | *(อ่านจาก Cookie เสมอ)* |
+| **GET** | `/api/v1/message/:id` | ดึงประวัติแชทของตัวเองกับ `id` ที่เลือก | *ไม่มี* |
+| **POST** | `/api/v1/message/send/:id` | ส่งข้อความไปยังเป้าหมาย | `{ text: "...", file: "base64..." }` |
+
+---
+
+## 📚 ตำราเจาะลึกโค้ด (Documentation)
+
+หากต้องการศึกษาโครงสร้างการทำงานและ Flow โดยละเอียด ดูไฟล์ที่เราได้ทำสรุปไว้ให้:
+* **`MERN_GUIDE.md`**: คู่มือการสร้างโปรเจกต์ตั้งแต่เริ่มต้น (From Scratch), สรุป Syntax ที่ใช้งาน
+* **`FLOW_RANKING.md`**: ผ่ารหัสแชท Flow เบื้องหลังระหว่าง Frontend × Backend, Socket.IO
