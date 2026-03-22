@@ -19,9 +19,9 @@ app.use(
     })
 );
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(cookieParser());
+app.use(express.json({ limit: '50mb' })); // จำกัดขนาดข้อมูลที่รับได้
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // จำกัดขนาดข้อมูลที่รับได้
+app.use(cookieParser()); // ใช้ cookie-parser
 
 const userRouter = require("./routers/user.Route");
 app.use("/api/v1/user", userRouter);
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
     res.send("Client is running MERN-CHAT API ");
 });
 
-
+// MONGO_URI
 if (!MONGO_URI) {
     console.error("DB_URL is missing. Please set it in your .env file");
 } else {
